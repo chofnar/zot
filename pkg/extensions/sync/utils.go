@@ -34,6 +34,10 @@ type ReferenceList struct {
 	References []artifactspec.Descriptor `json:"references"`
 }
 
+func TypeOf(v interface{}) string {
+	return fmt.Sprintf("%T", v)
+}
+
 // getTagFromRef returns a tagged reference from an image reference.
 func getTagFromRef(ref types.ImageReference, log log.Logger) reference.Tagged {
 	tagged, isTagged := ref.DockerReference().(reference.Tagged)
@@ -82,7 +86,8 @@ func filterRepos(repos []string, contentList []Content, log log.Logger) map[int]
 
 			matched, err := glob.Match(prefix, repo)
 			if err != nil {
-				log.Error().Err(err).Str("pattern",
+				log.Error().Str("errortype", TypeOf(err)).
+					Err(err).Str("pattern",
 					prefix).Msg("error while parsing glob pattern, skipping it...")
 
 				continue
@@ -216,7 +221,8 @@ func getHTTPClient(regCfg *RegistryConfig, upstreamURL string, credentials Crede
 
 	registryURL, err := url.Parse(upstreamURL)
 	if err != nil {
-		log.Error().Err(err).Str("url", upstreamURL).Msg("couldn't parse url")
+		log.Error().Str("errortype", TypeOf(err)).
+			Err(err).Str("url", upstreamURL).Msg("couldn't parse url")
 
 		return nil, nil, err
 	}
@@ -229,7 +235,8 @@ func getHTTPClient(regCfg *RegistryConfig, upstreamURL string, credentials Crede
 
 		caCert, err := ioutil.ReadFile(caCertPath)
 		if err != nil {
-			log.Error().Err(err).Msg("couldn't read CA certificate")
+			log.Error().Str("errortype", TypeOf(err)).
+				Err(err).Msg("couldn't read CA certificate")
 
 			return nil, nil, err
 		}
@@ -241,7 +248,8 @@ func getHTTPClient(regCfg *RegistryConfig, upstreamURL string, credentials Crede
 
 		cert, err := tls.LoadX509KeyPair(clientCert, clientKey)
 		if err != nil {
-			log.Error().Err(err).Msg("couldn't read certificates key pairs")
+			log.Error().Str("errortype", TypeOf(err)).
+				Err(err).Msg("couldn't read certificates key pairs")
 
 			return nil, nil, err
 		}
@@ -272,7 +280,8 @@ func pushSyncedLocalImage(localRepo, tag, localCachePath string,
 
 	manifestContent, _, _, err := cacheImageStore.GetImageManifest(localRepo, tag)
 	if err != nil {
-		log.Error().Err(err).Str("dir", path.Join(cacheImageStore.RootDir(), localRepo)).
+		log.Error().Str("errortype", TypeOf(err)).
+			Err(err).Str("dir", path.Join(cacheImageStore.RootDir(), localRepo)).
 			Msg("couldn't find index.json")
 
 		return err
@@ -281,7 +290,8 @@ func pushSyncedLocalImage(localRepo, tag, localCachePath string,
 	var manifest ispec.Manifest
 
 	if err := json.Unmarshal(manifestContent, &manifest); err != nil {
-		log.Error().Err(err).Str("dir", path.Join(cacheImageStore.RootDir(), localRepo)).
+		log.Error().Str("errortype", TypeOf(err)).
+			Err(err).Str("dir", path.Join(cacheImageStore.RootDir(), localRepo)).
 			Msg("invalid JSON")
 
 		return err
@@ -290,7 +300,8 @@ func pushSyncedLocalImage(localRepo, tag, localCachePath string,
 	for _, blob := range manifest.Layers {
 		blobReader, _, err := cacheImageStore.GetBlob(localRepo, blob.Digest.String(), blob.MediaType)
 		if err != nil {
-			log.Error().Err(err).Str("dir", path.Join(cacheImageStore.RootDir(),
+			log.Error().Str("errortype", TypeOf(err)).
+				Err(err).Str("dir", path.Join(cacheImageStore.RootDir(),
 				localRepo)).Str("blob digest", blob.Digest.String()).Msg("couldn't read blob")
 
 			return err
@@ -298,7 +309,8 @@ func pushSyncedLocalImage(localRepo, tag, localCachePath string,
 
 		_, _, err = imageStore.FullBlobUpload(localRepo, blobReader, blob.Digest.String())
 		if err != nil {
-			log.Error().Err(err).Str("blob digest", blob.Digest.String()).Msg("couldn't upload blob")
+			log.Error().Str("errortype", TypeOf(err)).
+				Err(err).Str("blob digest", blob.Digest.String()).Msg("couldn't upload blob")
 
 			return err
 		}
@@ -306,7 +318,8 @@ func pushSyncedLocalImage(localRepo, tag, localCachePath string,
 
 	blobReader, _, err := cacheImageStore.GetBlob(localRepo, manifest.Config.Digest.String(), manifest.Config.MediaType)
 	if err != nil {
-		log.Error().Err(err).Str("dir", path.Join(cacheImageStore.RootDir(),
+		log.Error().Str("errortype", TypeOf(err)).
+			Err(err).Str("dir", path.Join(cacheImageStore.RootDir(),
 			localRepo)).Str("blob digest", manifest.Config.Digest.String()).Msg("couldn't read config blob")
 
 		return err
@@ -314,14 +327,16 @@ func pushSyncedLocalImage(localRepo, tag, localCachePath string,
 
 	_, _, err = imageStore.FullBlobUpload(localRepo, blobReader, manifest.Config.Digest.String())
 	if err != nil {
-		log.Error().Err(err).Str("blob digest", manifest.Config.Digest.String()).Msg("couldn't upload config blob")
+		log.Error().Str("errortype", TypeOf(err)).
+			Err(err).Str("blob digest", manifest.Config.Digest.String()).Msg("couldn't upload config blob")
 
 		return err
 	}
 
 	_, err = imageStore.PutImageManifest(localRepo, tag, ispec.MediaTypeImageManifest, manifestContent)
 	if err != nil {
-		log.Error().Err(err).Msg("couldn't upload manifest")
+		log.Error().Str("errortype", TypeOf(err)).
+			Err(err).Msg("couldn't upload manifest")
 
 		return err
 	}
@@ -329,7 +344,8 @@ func pushSyncedLocalImage(localRepo, tag, localCachePath string,
 	log.Info().Msgf("removing temporary cached synced repo %s", path.Join(cacheImageStore.RootDir(), localRepo))
 
 	if err := os.RemoveAll(cacheImageStore.RootDir()); err != nil {
-		log.Error().Err(err).Msg("couldn't remove locally cached sync repo")
+		log.Error().Str("errortype", TypeOf(err)).
+			Err(err).Msg("couldn't remove locally cached sync repo")
 
 		return err
 	}
@@ -397,7 +413,8 @@ func canSkipImage(repo, tag, digest string, imageStore storage.ImageStore, log l
 			return false, nil
 		}
 
-		log.Error().Err(err).Msgf("couldn't get local image %s:%s manifest", repo, tag)
+		log.Error().Str("errortype", TypeOf(err)).
+			Err(err).Msgf("couldn't get local image %s:%s manifest", repo, tag)
 
 		return false, err
 	}

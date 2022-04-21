@@ -196,14 +196,16 @@ func imagesToCopyFromUpstream(ctx context.Context, registryName string, repos []
 	for _, repoName := range repos {
 		repoRef, err := parseRepositoryReference(fmt.Sprintf("%s/%s", registryName, repoName))
 		if err != nil {
-			log.Error().Err(err).Msgf("couldn't parse repository reference: %s", repoRef)
+			log.Error().Str("errortype", TypeOf(err)).
+				Err(err).Msgf("couldn't parse repository reference: %s", repoRef)
 
 			return nil, err
 		}
 
 		tags, err := getImageTags(ctx, upstreamCtx, repoRef)
 		if err != nil {
-			log.Error().Err(err).Msgf("couldn't fetch tags for %s", repoRef)
+			log.Error().Str("errortype", TypeOf(err)).
+				Err(err).Msgf("couldn't fetch tags for %s", repoRef)
 
 			return nil, err
 		}
@@ -310,7 +312,8 @@ func syncRegistry(ctx context.Context, regCfg RegistryConfig, upstreamURL string
 
 		return err
 	}, retryOptions); err != nil {
-		log.Error().Err(err).Msg("error while getting upstream catalog, retrying...")
+		log.Error().Str("errortype", TypeOf(err)).
+			Err(err).Msg("error while getting upstream catalog, retrying...")
 
 		return err
 	}
@@ -346,7 +349,8 @@ func syncRegistry(ctx context.Context, regCfg RegistryConfig, upstreamURL string
 
 			return err
 		}, retryOptions); err != nil {
-			log.Error().Err(err).Msg("error while getting images references from upstream, retrying...")
+			log.Error().Str("errortype", TypeOf(err)).
+				Err(err).Msg("error while getting images references from upstream, retrying...")
 
 			return err
 		}
@@ -367,7 +371,8 @@ func syncRegistry(ctx context.Context, regCfg RegistryConfig, upstreamURL string
 
 		upstreamImageDigest, err := docker.GetDigest(ctx, upstreamCtx, upstreamImageRef)
 		if err != nil {
-			log.Error().Err(err).Msgf("couldn't get upstream image %s manifest", upstreamImageRef.DockerReference())
+			log.Error().Str("errortype", TypeOf(err)).
+				Err(err).Msgf("couldn't get upstream image %s manifest", upstreamImageRef.DockerReference())
 
 			return err
 		}
@@ -380,14 +385,16 @@ func syncRegistry(ctx context.Context, regCfg RegistryConfig, upstreamURL string
 		cosignManifest, err := getCosignManifest(httpClient, *registryURL, remoteRepo,
 			upstreamImageDigest.String(), log)
 		if err != nil && !errors.Is(err, zerr.ErrSyncSignatureNotFound) {
-			log.Error().Err(err).Msgf("couldn't get upstream image %s cosign manifest", upstreamImageRef.DockerReference())
+			log.Error().Str("errortype", TypeOf(err)).
+				Err(err).Msgf("couldn't get upstream image %s cosign manifest", upstreamImageRef.DockerReference())
 
 			return err
 		}
 
 		refs, err := getNotaryRefs(httpClient, *registryURL, remoteRepo, upstreamImageDigest.String(), log)
 		if err != nil && !errors.Is(err, zerr.ErrSyncSignatureNotFound) {
-			log.Error().Err(err).Msgf("couldn't get upstream image %s notary references", upstreamImageRef.DockerReference())
+			log.Error().Str("errortype", TypeOf(err)).
+				Err(err).Msgf("couldn't get upstream image %s notary references", upstreamImageRef.DockerReference())
 
 			return err
 		}
@@ -405,7 +412,8 @@ func syncRegistry(ctx context.Context, regCfg RegistryConfig, upstreamURL string
 
 		skipImage, err := canSkipImage(localRepo, tag, upstreamImageDigest.String(), imageStore, log)
 		if err != nil {
-			log.Error().Err(err).Msgf("couldn't check if the upstream image %s can be skipped",
+			log.Error().Str("errortype", TypeOf(err)).
+				Err(err).Msgf("couldn't check if the upstream image %s can be skipped",
 				upstreamImageRef.DockerReference())
 
 			return err
@@ -418,7 +426,8 @@ func syncRegistry(ctx context.Context, regCfg RegistryConfig, upstreamURL string
 			skipNotarySig, err := canSkipNotarySignature(localRepo, tag, upstreamImageDigest.String(),
 				refs, imageStore, log)
 			if err != nil {
-				log.Error().Err(err).Msgf("couldn't check if the upstream image %s notary signature can be skipped",
+				log.Error().Str("errortype", TypeOf(err)).
+					Err(err).Msgf("couldn't check if the upstream image %s notary signature can be skipped",
 					upstreamImageRef.DockerReference())
 			}
 
@@ -429,14 +438,16 @@ func syncRegistry(ctx context.Context, regCfg RegistryConfig, upstreamURL string
 
 					return err
 				}, retryOptions); err != nil {
-					log.Error().Err(err).Msgf("couldn't copy notary signature for %s", upstreamImageRef.DockerReference())
+					log.Error().Str("errortype", TypeOf(err)).
+						Err(err).Msgf("couldn't copy notary signature for %s", upstreamImageRef.DockerReference())
 				}
 			}
 
 			skipCosignSig, err := canSkipCosignSignature(localRepo, tag, upstreamImageDigest.String(),
 				cosignManifest, imageStore, log)
 			if err != nil {
-				log.Error().Err(err).Msgf("couldn't check if the upstream image %s cosign signature can be skipped",
+				log.Error().Str("errortype", TypeOf(err)).
+					Err(err).Msgf("couldn't check if the upstream image %s cosign signature can be skipped",
 					upstreamImageRef.DockerReference())
 			}
 
@@ -447,7 +458,8 @@ func syncRegistry(ctx context.Context, regCfg RegistryConfig, upstreamURL string
 
 					return err
 				}, retryOptions); err != nil {
-					log.Error().Err(err).Msgf("couldn't copy cosign signature for %s", upstreamImageRef.DockerReference())
+					log.Error().Str("errortype", TypeOf(err)).
+						Err(err).Msgf("couldn't copy cosign signature for %s", upstreamImageRef.DockerReference())
 				}
 			}
 
@@ -456,7 +468,8 @@ func syncRegistry(ctx context.Context, regCfg RegistryConfig, upstreamURL string
 
 		localImageRef, localCachePath, err := getLocalImageRef(imageStore, localRepo, tag)
 		if err != nil {
-			log.Error().Err(err).Msgf("couldn't obtain a valid image reference for reference %s/%s:%s",
+			log.Error().Str("errortype", TypeOf(err)).
+				Err(err).Msgf("couldn't obtain a valid image reference for reference %s/%s:%s",
 				localCachePath, localRepo, tag)
 
 			return err
@@ -471,7 +484,8 @@ func syncRegistry(ctx context.Context, regCfg RegistryConfig, upstreamURL string
 
 			return err
 		}, retryOptions); err != nil {
-			log.Error().Err(err).Msgf("error while copying image %s to %s",
+			log.Error().Str("errortype", TypeOf(err)).
+				Err(err).Msgf("error while copying image %s to %s",
 				upstreamImageRef.DockerReference(), localCachePath)
 
 			return err
@@ -479,7 +493,8 @@ func syncRegistry(ctx context.Context, regCfg RegistryConfig, upstreamURL string
 
 		err = pushSyncedLocalImage(localRepo, tag, localCachePath, imageStore, log)
 		if err != nil {
-			log.Error().Err(err).Msgf("error while pushing synced cached image %s",
+			log.Error().Str("errortype", TypeOf(err)).
+				Err(err).Msgf("error while pushing synced cached image %s",
 				fmt.Sprintf("%s/%s:%s", localCachePath, localRepo, tag))
 
 			return err
@@ -491,7 +506,8 @@ func syncRegistry(ctx context.Context, regCfg RegistryConfig, upstreamURL string
 
 			return err
 		}, retryOptions); err != nil {
-			log.Error().Err(err).Msgf("couldn't copy notary signature for %s", upstreamImageRef.DockerReference())
+			log.Error().Str("errortype", TypeOf(err)).
+				Err(err).Msgf("couldn't copy notary signature for %s", upstreamImageRef.DockerReference())
 		}
 
 		if err = retry.RetryIfNecessary(ctx, func() error {
@@ -500,7 +516,8 @@ func syncRegistry(ctx context.Context, regCfg RegistryConfig, upstreamURL string
 
 			return err
 		}, retryOptions); err != nil {
-			log.Error().Err(err).Msgf("couldn't copy cosign signature for %s", upstreamImageRef.DockerReference())
+			log.Error().Str("errortype", TypeOf(err)).
+				Err(err).Msgf("couldn't copy cosign signature for %s", upstreamImageRef.DockerReference())
 		}
 	}
 
@@ -525,7 +542,8 @@ func getLocalContexts(log log.Logger) (*types.SystemContext, *signature.PolicyCo
 
 	policyContext, err := signature.NewPolicyContext(policy)
 	if err := test.Error(err); err != nil {
-		log.Error().Err(err).Msg("couldn't create policy context")
+		log.Error().Str("errortype", TypeOf(err)).
+			Err(err).Msg("couldn't create policy context")
 
 		return &types.SystemContext{}, &signature.PolicyContext{}, err
 	}
@@ -543,7 +561,8 @@ func Run(ctx context.Context, cfg Config, storeController storage.StoreControlle
 	if cfg.CredentialsFile != "" {
 		credentialsFile, err = getFileCredentials(cfg.CredentialsFile)
 		if err != nil {
-			logger.Error().Err(err).Msgf("couldn't get registry credentials from %s", cfg.CredentialsFile)
+			logger.Error().Str("errortype", TypeOf(err)).
+				Err(err).Msgf("couldn't get registry credentials from %s", cfg.CredentialsFile)
 
 			return err
 		}
@@ -595,7 +614,8 @@ func Run(ctx context.Context, cfg Config, storeController storage.StoreControlle
 					// first try syncing main registry
 					if err := syncRegistry(ctx, regCfg, upstreamURL, storeController, localCtx, policyCtx,
 						credentialsFile[upstreamAddr], retryOptions, logger); err != nil {
-						logger.Error().Err(err).Str("registry", upstreamURL).
+						logger.Error().Str("errortype", TypeOf(err)).
+							Err(err).Str("registry", upstreamURL).
 							Msg("sync exited with error, falling back to auxiliary registries if any")
 					} else {
 						// if success fall back to main registry
