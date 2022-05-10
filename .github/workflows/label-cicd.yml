@@ -1,0 +1,18 @@
+# this workflow runs every time a new push is made
+name: cicd-label
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types: [ labeled ]
+jobs:
+  enhancement-specific-stuff:
+    if: contains(github.event.pull_request.labels.*.name, 'ci/cd')
+    name: CI-CD Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Step 1
+        run: echo "Hello world!"

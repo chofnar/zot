@@ -24,6 +24,12 @@ extended-name:=
 .PHONY: all
 all: modcheck swagger binary binary-minimal binary-debug cli bench exporter-minimal verify-config test covhtml check
 
+.PHONY: minimal
+minimal: check test covhtml
+
+.PHONY: final
+final: modcheck swagger binary binary-minimal binary-debug cli bench exporter-minimal verify-config
+
 .PHONY: modcheck
 modcheck:
 	go mod tidy
