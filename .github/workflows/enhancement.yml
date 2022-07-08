@@ -1,9 +1,6 @@
 # this workflow runs only when the 'enhancement' label is added, and not subsequently
 name: enhancement-label
 on: 
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main

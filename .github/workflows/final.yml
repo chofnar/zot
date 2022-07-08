@@ -2,8 +2,11 @@ on:
   pull_request_review:
     types:
       - submitted
+  release:
+    types:
+      - published
 
-name: reviewer-approved-checks
+name: complete-conformance-check
 jobs:
   build-test-arch:
     if: github.event.review.state == 'approved'

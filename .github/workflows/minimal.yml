@@ -2,16 +2,15 @@ on:
   pull_request:
     branches:
       - main
+  push:
+    branches:
+      - main
 
-name: minimal-test
+name: minimal-conformance-check
 jobs:
   minimal-test:
     name: Build and test ZOT - minimal edition
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        os: [linux, darwin]
-        arch: [amd64, arm64]
     services:
       s3mock:
         image: ghcr.io/project-zot/localstack/localstack:0.13.2
@@ -55,7 +54,7 @@ jobs:
           S3MOCK_ENDPOINT: localhost:4566
           AWS_ACCESS_KEY_ID: fake
           AWS_SECRET_ACCESS_KEY: fake
-          OS: ${{ matrix.os }}
-          ARCH: ${{ matrix.arch }}
+          OS: linux
+          ARCH: amd64
       - name: Upload code coverage
         uses: codecov/codecov-action@v2
