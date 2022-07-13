@@ -6,7 +6,7 @@ on:
     branches:
       - main
 
-name: minimal-conformance-check
+name: minimal-check
 jobs:
   minimal-test:
     name: Build and test ZOT - minimal edition
@@ -47,7 +47,7 @@ jobs:
           echo "Building for $OS:$ARCH"
           cd $GITHUB_WORKSPACE
           if [[ $OS == "linux" && $ARCH == "amd64" ]]; then
-            make OS=$OS ARCH=$ARCH minimal
+            make OS=$OS ARCH=$ARCH minimal-check
             sudo env "PATH=$PATH" make privileged-test
           fi
         env:

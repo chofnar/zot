@@ -1,15 +1,16 @@
 on:
-  pull_request_review:
-    types:
-      - submitted
+  pull_request:
+    branches:
+      - main
+    types: [ labeled ]
   release:
     types:
       - published
 
-name: complete-conformance-check
+name: complete-check
 jobs:
   build-test-arch:
-    if: github.event.review.state == 'approved'
+    if: contains(github.event.pull_request.labels.*.name, 'final_stage')
     name: Build and test ZOT
     runs-on: ubuntu-latest
     strategy:
@@ -64,7 +65,7 @@ jobs:
           echo "Building for $OS:$ARCH"
           cd $GITHUB_WORKSPACE
           if [[ $OS == "linux" && $ARCH == "amd64" ]]; then
-            make OS=$OS ARCH=$ARCH final
+            make OS=$OS ARCH=$ARCH complete-check
           else
             make OS=$OS ARCH=$ARCH binary binary-minimal binary-debug cli bench exporter-minimal
           fi
