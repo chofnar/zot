@@ -26,8 +26,10 @@ func TestCache(t *testing.T) {
 
 		cache, _ = database.Create("boltdb", storage.BoltDBDriverParameters{dir, "cache_test", true}, log)
 		So(cache, ShouldNotBeNil)
+
 		name := cache.Name()
 		So(name, ShouldEqual, "boltdb")
+
 		val, err := cache.GetBlob("key")
 		So(err, ShouldEqual, errors.ErrCacheMiss)
 		So(val, ShouldBeEmpty)
