@@ -27,10 +27,7 @@ import (
 	"zotregistry.io/zot/pkg/log"
 	"zotregistry.io/zot/pkg/storage"
 	"zotregistry.io/zot/pkg/storage/database"
-<<<<<<< HEAD
-=======
 	"zotregistry.io/zot/pkg/storage/dynamodatabase"
->>>>>>> 3a28012 (Added dynamoDB integration)
 	"zotregistry.io/zot/pkg/storage/s3"
 )
 
@@ -230,9 +227,6 @@ func (c *Controller) CreateCacheDatabaseDriver(configOverride interface{}, log l
 
 		if val, ok := c.Config.Storage.CacheDatabaseDriver["name"]; ok && len(c.Config.Storage.CacheDatabaseDriver) != 0 {
 			switch val {
-<<<<<<< HEAD
-
-=======
 			case "dynamodb":
 				dynEndpointCfgVarName := "endpoint"
 				dynRegionCfgVarName := "region"
@@ -249,19 +243,18 @@ func (c *Controller) CreateCacheDatabaseDriver(configOverride interface{}, log l
 				if tableNameVal, ok := c.Config.Storage.CacheDatabaseDriver[dynTableNameCfgVarName]; ok && len(tableNameVal) != 0 {
 					params.TableName = tableNameVal
 				} else {
-					panic(fmt.Sprintf("Incomplete config for %v, missing %v zot config var", val, dynEndpointCfgVarName))
+					panic(fmt.Sprintf("Incomplete config for %v, missing %v zot config var", val, dynTableNameCfgVarName))
 				}
 
 				if valRegion := os.Getenv("AWS_REGION"); valRegion == "" {
 					if regionVal, ok := c.Config.Storage.CacheDatabaseDriver[dynRegionCfgVarName]; ok && len(regionVal) != 0 {
 						params.Region = regionVal
 					} else {
-						panic(fmt.Sprintf("Incomplete config for %v, missing %v zot config var", val, dynEndpointCfgVarName))
+						panic(fmt.Sprintf("Incomplete config for %v, missing %v zot config var", val, dynRegionCfgVarName))
 					}
 				}
 
 				return database.Create("dynamodb", params, log)
->>>>>>> 3a28012 (Added dynamoDB integration)
 			case "boltdb":
 				params := storage.BoltDBDriverParameters{}
 				boltRootDirCfgVarName := "rootDirectory"
