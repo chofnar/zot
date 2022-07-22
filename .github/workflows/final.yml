@@ -6,10 +6,22 @@ on:
   release:
     types:
       - published
-
 name: complete-check
+
+permissions:
+  contents: read
+  packages: write
+
 jobs:
-  build-test-arch:
+  build-test:
+    name: Build and test ZOT
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run build and test
+        timeout-minutes: 60
+        run: |
+            echo "job deprecated"
+  complete-check:
     if: contains(github.event.pull_request.labels.*.name, 'final_stage')
     name: Build and test ZOT
     runs-on: ubuntu-latest

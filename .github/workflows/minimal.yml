@@ -5,11 +5,23 @@ on:
   push:
     branches:
       - main
-
 name: minimal-check
+
+permissions:
+  contents: read
+  packages: write
+
 jobs:
-  minimal-test:
-    name: Build and test ZOT - minimal edition
+  build-test:
+    name: Build and test ZOT
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run build and test
+        timeout-minutes: 60
+        run: |
+            echo "job deprecated"
+  minimal-check:
+    name: Build and test ZOT
     runs-on: ubuntu-latest
     services:
       s3mock:
