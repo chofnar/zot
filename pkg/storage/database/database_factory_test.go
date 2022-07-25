@@ -29,5 +29,9 @@ func TestDatabaseFactory(t *testing.T) {
 		So(func() {
 			database.Register("boltdb", &mockDriverFactory{})
 		}, ShouldPanic)
+
+		cache, err := database.Create("boltdb", storage.BoltDBDriverParameters{}, log)
+		So(err, ShouldBeNil)
+		So(cache, ShouldNotBeNil)
 	})
 }

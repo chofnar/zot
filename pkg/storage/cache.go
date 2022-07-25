@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
@@ -74,6 +75,13 @@ func FromParameters(parameters BoltDBDriverParameters, log zlog.Logger) (*Driver
 }
 
 func NewCache(parameters BoltDBDriverParameters, log zlog.Logger) *Driver {
+	err := os.MkdirAll(parameters.RootDir, 0o700) //nolint:gomnd
+	if err != nil {
+		log.Error().Err(err).Msgf("unable to create directory for cache db: %v", parameters.RootDir)
+
+		return nil
+	}
+
 	dbPath := path.Join(parameters.RootDir, parameters.Name+DBExtensionName)
 	dbOpts := &bbolt.Options{
 		Timeout:      dbCacheLockCheckTimeout,

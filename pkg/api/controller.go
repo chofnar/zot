@@ -234,13 +234,19 @@ func (c *Controller) CreateCacheDatabaseDriver(configOverride interface{}, log l
 				if rootDirVal, ok := c.Config.Storage.CacheDatabaseDriver[boltRootDirCfgVarName]; ok && len(rootDirVal) != 0 {
 					params.RootDir = rootDirVal
 				} else {
-					panic(fmt.Sprintf("Incomplete config for %v, missing %v zot config var", val, boltRootDirCfgVarName))
+					log.Error().Err(errors.ErrBadConfig).Msgf("Incomplete config for %v, missing %v zot config var",
+						val, boltRootDirCfgVarName)
+
+					return nil, errors.ErrBadConfig
 				}
 
 				if nameVal, ok := c.Config.Storage.CacheDatabaseDriver[boltNameCfgVarName]; ok && len(nameVal) != 0 {
 					params.RootDir = nameVal
 				} else {
-					panic(fmt.Sprintf("Incomplete config for %v, missing %v zot config var", val, boltNameCfgVarName))
+					log.Error().Err(errors.ErrBadConfig).Msgf("Incomplete config for %v, missing %v zot config var",
+						val, boltNameCfgVarName)
+
+					return nil, errors.ErrBadConfig
 				}
 
 				if useRelPathsVal, ok := c.Config.Storage.CacheDatabaseDriver[boltbdUseRelCfg]; ok && len(useRelPathsVal) != 0 {
@@ -248,11 +254,17 @@ func (c *Controller) CreateCacheDatabaseDriver(configOverride interface{}, log l
 					params.UseRelPaths = boolVal
 
 					if err != nil {
-						panic(fmt.Sprintf("Incorrect config for %v, unable to parse %v to a boolean", val, boltbdUseRelCfg))
+						log.Error().Err(errors.ErrBadConfig).Msgf("Incorrect config for %v, unable to parse %v to a boolean",
+							val, boltbdUseRelCfg)
+
+						return nil, errors.ErrBadConfig
 					}
 					params.UseRelPaths = boolVal
 				} else {
-					panic(fmt.Sprintf("Incomplete config for %v, missing %v zot config var", val, boltbdUseRelCfg))
+					log.Error().Err(errors.ErrBadConfig).Msgf("Incomplete config for %v, missing %v zot config var",
+						val, boltbdUseRelCfg)
+
+					return nil, errors.ErrBadConfig
 				}
 
 			default:
@@ -290,6 +302,8 @@ func (c *Controller) InitImageStore(reloadCtx context.Context) error {
 	cacheDriver, err := c.CreateCacheDatabaseDriver(nil, c.Log)
 	if err != nil {
 		c.Log.Error().Err(err).Msg("Failed to set up cache db")
+
+		return err
 	}
 
 	if c.Config.Storage.RootDirectory != "" {
