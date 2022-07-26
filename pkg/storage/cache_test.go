@@ -9,6 +9,7 @@ import (
 	"zotregistry.io/zot/pkg/log"
 	"zotregistry.io/zot/pkg/storage"
 	"zotregistry.io/zot/pkg/storage/database"
+	"zotregistry.io/zot/pkg/storage/dynamodatabase"
 )
 
 func TestCache(t *testing.T) {
@@ -20,6 +21,8 @@ func TestCache(t *testing.T) {
 
 		cache, _ := database.Create("boltdb", storage.BoltDBDriverParameters{"/deadBEEF", "cache_test", true}, log)
 		So(cache, ShouldBeNil)
+
+		So(func() { _, _ = database.Create("boltdb", dynamodatabase.DynamoDBDriverParameters{}, log) }, ShouldPanic)
 
 		cache, _ = database.Create("boltdb", storage.BoltDBDriverParameters{dir, "cache_test", true}, log)
 		So(cache, ShouldNotBeNil)
