@@ -194,7 +194,7 @@ func BenchmarkPutLocalstack(b *testing.B) {
 	_, err := exec.Command("aws", "dynamodb", "--region", region, "--endpoint-url", localEndpoint, "create-table",
 		"--table-name", tableName, "--attribute-definitions", "AttributeName=Digest,AttributeType=S",
 		"--key-schema", "AttributeName=Digest,KeyType=HASH",
-		"--provisioned-throughput", "ReadCapacityUnits=10,WriteCapacityUnits=5").Output()
+		"--billing-mode", "PAY_PER_REQUEST").Output()
 	if err != nil {
 		panic(err)
 	}
@@ -219,7 +219,7 @@ func BenchmarkDeleteLocalstack(b *testing.B) {
 	_, err := exec.Command("aws", "dynamodb", "--region", region, "--endpoint-url", localEndpoint, "create-table",
 		"--table-name", tableName, "--attribute-definitions", "AttributeName=Digest,AttributeType=S",
 		"--key-schema", "AttributeName=Digest,KeyType=HASH",
-		"--provisioned-throughput", "ReadCapacityUnits=10,WriteCapacityUnits=5").Output()
+		"--billing-mode", "PAY_PER_REQUEST").Output()
 	if err != nil {
 		panic(err)
 	}
@@ -248,7 +248,7 @@ func BenchmarkHasLocalstack(b *testing.B) {
 	_, err := exec.Command("aws", "dynamodb", "--region", region, "--endpoint-url", localEndpoint, "create-table",
 		"--table-name", tableName, "--attribute-definitions", "AttributeName=Digest,AttributeType=S",
 		"--key-schema", "AttributeName=Digest,KeyType=HASH",
-		"--provisioned-throughput", "ReadCapacityUnits=10,WriteCapacityUnits=5").Output()
+		"--billing-mode", "PAY_PER_REQUEST").Output()
 	if err != nil {
 		panic(err)
 	}
@@ -277,7 +277,7 @@ func BenchmarkGetLocalstack(b *testing.B) {
 	_, err := exec.Command("aws", "dynamodb", "--region", region, "--endpoint-url", localEndpoint, "create-table",
 		"--table-name", tableName, "--attribute-definitions", "AttributeName=Digest,AttributeType=S",
 		"--key-schema", "AttributeName=Digest,KeyType=HASH",
-		"--provisioned-throughput", "ReadCapacityUnits=10,WriteCapacityUnits=5").Output()
+		"--billing-mode", "PAY_PER_REQUEST").Output()
 	if err != nil {
 		panic(err)
 	}
@@ -315,7 +315,7 @@ func BenchmarkMixLocalstack(b *testing.B) {
 	_, err := exec.Command("aws", "dynamodb", "--region", region, "--endpoint-url", localEndpoint, "create-table",
 		"--table-name", tableName, "--attribute-definitions", "AttributeName=Digest,AttributeType=S",
 		"--key-schema", "AttributeName=Digest,KeyType=HASH",
-		"--provisioned-throughput", "ReadCapacityUnits=10,WriteCapacityUnits=5").Output()
+		"--billing-mode", "PAY_PER_REQUEST").Output()
 	if err != nil {
 		panic(err)
 	}
@@ -351,7 +351,7 @@ func BenchmarkPutAWS(b *testing.B) {
 	_, err := exec.Command("aws", "dynamodb", "--region", region, "--endpoint-url", awsEndpoint, "create-table",
 		"--table-name", tableName, "--attribute-definitions", "AttributeName=Digest,AttributeType=S",
 		"--key-schema", "AttributeName=Digest,KeyType=HASH",
-		"--provisioned-throughput", "ReadCapacityUnits=10,WriteCapacityUnits=5").Output()
+		"--billing-mode", "PAY_PER_REQUEST").Output()
 	if err != nil {
 		panic(err)
 	}
@@ -376,7 +376,7 @@ func BenchmarkDeleteAWS(b *testing.B) {
 	_, err := exec.Command("aws", "dynamodb", "--region", region, "--endpoint-url", awsEndpoint, "create-table",
 		"--table-name", tableName, "--attribute-definitions", "AttributeName=Digest,AttributeType=S",
 		"--key-schema", "AttributeName=Digest,KeyType=HASH",
-		"--provisioned-throughput", "ReadCapacityUnits=10,WriteCapacityUnits=5").Output()
+		"--billing-mode", "PAY_PER_REQUEST").Output()
 	if err != nil {
 		panic(err)
 	}
@@ -405,7 +405,7 @@ func BenchmarkHasAWS(b *testing.B) {
 	_, err := exec.Command("aws", "dynamodb", "--region", region, "--endpoint-url", awsEndpoint, "create-table",
 		"--table-name", tableName, "--attribute-definitions", "AttributeName=Digest,AttributeType=S",
 		"--key-schema", "AttributeName=Digest,KeyType=HASH",
-		"--provisioned-throughput", "ReadCapacityUnits=10,WriteCapacityUnits=5").Output()
+		"--billing-mode", "PAY_PER_REQUEST").Output()
 	if err != nil {
 		panic(err)
 	}
@@ -434,7 +434,7 @@ func BenchmarkGetAWS(b *testing.B) {
 	_, err := exec.Command("aws", "dynamodb", "--region", region, "--endpoint-url", awsEndpoint, "create-table",
 		"--table-name", tableName, "--attribute-definitions", "AttributeName=Digest,AttributeType=S",
 		"--key-schema", "AttributeName=Digest,KeyType=HASH",
-		"--provisioned-throughput", "ReadCapacityUnits=10,WriteCapacityUnits=5").Output()
+		"--billing-mode", "PAY_PER_REQUEST").Output()
 	if err != nil {
 		panic(err)
 	}
@@ -472,7 +472,7 @@ func BenchmarkMixAWS(b *testing.B) {
 	_, err := exec.Command("aws", "dynamodb", "--region", region, "--endpoint-url", awsEndpoint, "create-table",
 		"--table-name", tableName, "--attribute-definitions", "AttributeName=Digest,AttributeType=S",
 		"--key-schema", "AttributeName=Digest,KeyType=HASH",
-		"--provisioned-throughput", "ReadCapacityUnits=10,WriteCapacityUnits=5").Output()
+		"--billing-mode", "PAY_PER_REQUEST").Output()
 	if err != nil {
 		panic(err)
 	}
