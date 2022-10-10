@@ -106,6 +106,14 @@ jobs:
           overwrite: true
           file_glob: true
 
+      - if: github.event_name == 'release' && github.event.action == 'published'
+        name: Release on docs-zot
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.DOCS_TOKEN }}
+          file: LICENSE
+          repo_name: chofnar/docs-zot
+
       - name: Check if GraphQL Schema Changed
         if: matrix.os == 'linux' && matrix.arch == 'amd64'
         id: changed-files-specific
