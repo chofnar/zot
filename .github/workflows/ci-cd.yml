@@ -106,6 +106,18 @@ jobs:
           overwrite: true
           file_glob: true
 
+      - if: github.event_name == 'release' && github.event.action == 'published'
+        name: Release on docs-zot
+        uses: softprops/action-gh-release@v1
+        with:
+          # body_path: ${{ github.workspace }}-CHANGELOG.txt
+          # note you'll typically need to create a personal access token
+          # with permissions to create releases in the other repo
+          token: ${{ secrets.DOCS_TOKEN }}
+          files: LICENSE
+        env:
+          GITHUB_REPOSITORY: chofnar/docs-zot
+
       - name: Check if GraphQL Schema Changed
         if: matrix.os == 'linux' && matrix.arch == 'amd64'
         id: changed-files-specific
