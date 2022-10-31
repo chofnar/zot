@@ -353,7 +353,7 @@ ui:
 	pwd=$$(pwd);\
 	tdir=$$(mktemp -d);\
 	cd $$tdir;\
-	git clone https://github.com/project-zot/zui.git;\
+	git clone --depth 1 --branch $(RELEASE_TAG) https://github.com/project-zot/zui.git;\
 	cd zui;\
 	npm install;\
 	npm run build;\
