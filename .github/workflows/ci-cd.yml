@@ -43,6 +43,16 @@ jobs:
           - 4563-4599:4563-4599
           - 9090:8080
     steps:
+      - name: Push release tag to zui
+        if: github.event_name == 'release' && github.event.action == 'published' && matrix.os == 'linux' && matrix.arch == 'amd64'
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.ZUI_TOKEN }}
+          repo: project-zot/zui
+          tag: ${{ github.event.release.tag_name }}
+          name: ${{ github.event.release.name }}
+          body: ${{ github.event.release.body }}
+
       - name: Install go
         uses: actions/setup-go@v3
         with:
