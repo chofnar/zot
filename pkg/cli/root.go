@@ -237,6 +237,77 @@ func validateStorageConfig(cfg *config.Config) error {
 	return nil
 }
 
+func validateCacheConfig(cfg *config.Config) error {
+
+	// global
+
+	// dedupe true, remote storage, remoteCache true, but no cacheDriver (remote)
+	if cfg.Storage.Dedupe && cfg.Storage.StorageDriver != nil && cfg.Storage.RemoteCache && cfg.Storage.CacheDriver == nil {
+		log.Error().Err(errors.ErrBadConfig).Msg("dedupe set to true with remote storage and caching, but no remote cache configured!")
+
+		return errors.ErrBadConfig
+	}
+
+	if cfg.Storage.CacheDriver != nil {
+		// local storage with remote caching
+		if cfg.Storage.StorageDriver != nil {
+			log.Error().Err(errors.ErrBadConfig).Msg("cannot have local storage driver with remote caching!")
+
+			return errors.ErrBadConfig
+		}
+
+		// unsupported cache driver
+		if cfg.Storage.CacheDriver["name"].(string) != "dynamodb" {
+			log.Error().Err(errors.ErrBadConfig).Msgf("unsupported cache driver: %s", cfg.Storage.CacheDriver["name"])
+
+			return errors.ErrBadConfig
+		}
+
+		// bad pairing - won't be able to cover properly without having two remote cache driver implementations
+		if cfg.Storage.StorageDriver["name"] == storage.S3StorageDriverName && cfg.Storage.CacheDriver["name"].(string) != "dynamodb" {
+			log.Error().Err(errors.ErrBadConfig).Msgf("bad remote storage and cache driver pairing: %s and %s", cfg.Storage.StorageDriver["name"], cfg.Storage.CacheDriver["name"])
+
+			return errors.ErrBadConfig
+		}
+
+	}
+
+	// subpaths
+	for _, subPath := range cfg.Storage.SubPaths {
+		// dedupe true, remote storage, remoteCache true, but no cacheDriver (remote)
+		if subPath.Dedupe && subPath.StorageDriver != nil && subPath.RemoteCache && subPath.CacheDriver == nil {
+			log.Error().Err(errors.ErrBadConfig).Msg("dedupe set to true with remote storage and caching, but no remote cache configured!")
+
+			return errors.ErrBadConfig
+		}
+
+		if subPath.CacheDriver != nil {
+			// local storage with remote caching
+			if subPath.StorageDriver != nil {
+				log.Error().Err(errors.ErrBadConfig).Msg("cannot have local storage driver with remote caching!")
+
+				return errors.ErrBadConfig
+			}
+
+			// unsupported cache driver
+			if subPath.CacheDriver["name"].(string) != "dynamodb" {
+				log.Error().Err(errors.ErrBadConfig).Msgf("unsupported cache driver: %s", subPath.CacheDriver["name"])
+
+				return errors.ErrBadConfig
+			}
+
+			// bad pairing - won't be able to cover properly without having two remote cache driver implementations
+			if subPath.StorageDriver["name"] == storage.S3StorageDriverName && subPath.CacheDriver["name"].(string) != "dynamodb" {
+				log.Error().Err(errors.ErrBadConfig).Msgf("bad remote storage and cache driver pairing: %s and %s", subPath.StorageDriver["name"], subPath.CacheDriver["name"])
+
+				return errors.ErrBadConfig
+			}
+		}
+	}
+
+	return nil
+}
+
 func validateConfiguration(config *config.Config) error {
 	if err := validateHTTP(config); err != nil {
 		return err
@@ -255,6 +326,10 @@ func validateConfiguration(config *config.Config) error {
 	}
 
 	if err := validateStorageConfig(config); err != nil {
+		return err
+	}
+
+	if err := validateCacheConfig(config); err != nil {
 		return err
 	}
 

@@ -442,9 +442,23 @@ func CreateCacheDatabaseDriver(storageConfig config.StorageConfig, log log.Logge
 			driver, _ := storage.Create("boltdb", params, log)
 
 			return driver
+		} else {
+			// only dynamodb for now
+			if storageConfig.CacheDriver != nil {
+				params := cache.DynamoDBDriverParameters{
+					Endpoint:  storageConfig.CacheDriver["endpoint"].(string),
+					Region:    storageConfig.CacheDriver["regin"].(string),
+					TableName: storageConfig.CacheDriver["tableName"].(string),
+				}
+
+				driver, _ := storage.Create("dynamodb", params, log)
+
+				return driver
+			} else {
+				return nil
+			}
 		}
 		// used for tests, dynamodb when it comes
-		return nil
 	}
 
 	return nil

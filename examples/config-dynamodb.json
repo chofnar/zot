@@ -1,0 +1,21 @@
+{
+    "distSpecVersion": "1.0.1-dev",
+    "storage": {
+        "rootDirectory": "/tmp/zot",
+        "dedupe": true,
+        "remoteCache": true,
+        "cacheDriver": {
+            "name": "dynamodb",
+            "endpoint": "http://localhost:4566",
+            "region": "us-east-2",
+            "tableName": "BlobTable"
+        }
+    },
+    "http": {
+        "address": "127.0.0.1",
+        "port": "8080"
+    },
+    "log": {
+        "level": "debug"
+    }
+}
