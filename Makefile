@@ -360,7 +360,11 @@ ui:
 	pwd=$$(pwd);\
 	tdir=$$(mktemp -d);\
 	cd $$tdir;\
-	git clone https://github.com/project-zot/zui.git;\
+	if [ -z $(RELEASE_UI) ]; then\
+		git clone https://github.com/chofnar/zui.git;\
+	else\
+		git clone --depth 1 --branch $(RELEASE_TAG) https://github.com/chofnar/zui.git;\
+	fi;\
 	cd zui;\
 	npm install;\
 	npm run build;\
