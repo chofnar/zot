@@ -160,6 +160,12 @@ type PageInfo {
 }
 
 # Pagination parameters
+"""
+Pagination parameters.
+Limit: refers to the amout of results per page. If you set limit to -1, the pagination behaior is disabled
+Offset: the results page number you want to receive.
+Sort by: the criteria used to sort the results on the page.
+"""
 input PageInput {
     limit: Int
     offset: Int
@@ -180,6 +186,9 @@ type PaginatedImagesResult {
     Results: [ImageSummary!]!
 }
 
+"""
+Parameters used to filter the results of the query
+"""
 input Filter {
     Os: [String]
     Arch: [String]
